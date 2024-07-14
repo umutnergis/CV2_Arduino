@@ -4,7 +4,7 @@ from email.header import decode_header
 import serial
 import time
 
-# E-posta ayarlari
+# Email settings
 EMAIL_USER = 'mertprojedestek@gmail.com'
 EMAIL_PASS = 'ssgo osag tavc pjjk'
 IMAP_SERVER = 'imap.gmail.com'
@@ -16,17 +16,17 @@ last_checked_id = None
 def check_email():
     global last_checked_id
     try:
-        # IMAP sunucusuna bağlan
+        # Connect to the IMAP server
         mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
         mail.login(EMAIL_USER, EMAIL_PASS)
         mail.select('inbox')
 
-        # 'KapiyiAc' konulu yeni e-posta var mi kontrol et
+        # Check for new emails with the subject 'DOORON'
         status, messages = mail.search(None, '(UNSEEN SUBJECT "DOORON")')
         mail_ids = messages[0].split()
 
         if mail_ids:
-            # Eğer daha önce kontrol edilmiş bir ID varsa, bunu kullanarak filtreleme yap
+            # If a previously checked ID exists, use it to filter
             if last_checked_id:
                 new_mail_ids = [mail_id for mail_id in mail_ids if int(mail_id) > int(last_checked_id)]
             else:
@@ -37,14 +37,14 @@ def check_email():
                 return True
         return False
     except Exception as e:
-        print(f"E-posta kontrolü başarisiz: {e}")
+        print(f"Email check failed: {e}")
         return False
 
 if __name__ == "__main__":
     while True:
         if check_email():
-            print("Kapiyi açma sinyali gönderildi.")
+            print("Door opening signal sent.")
         else:
-            print("Yeni 'KapiyiAc' e-postasi yok.")
+            print("No new 'DOORON' email.")
         
-        time.sleep(1)  # 60 saniye bekle ve tekrar kontrol et
+        time.sleep(1)  # Wait 60 seconds and check again
